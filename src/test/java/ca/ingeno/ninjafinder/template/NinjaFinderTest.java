@@ -97,11 +97,11 @@ public class NinjaFinderTest extends TestCase {
 	public void testUniqueTwoDifferent() {
 		assertTrue(isContainingOnlyUniqueValues(new int[] { 1, 2 }));
 	}
-	
+
 	public void testUniqueManyDifferent() {
 		assertTrue(isContainingOnlyUniqueValues(new int[] { 1, 2, 44, 58, 3, 10345 }));
 	}
-	
+
 	public void testUniqueManyDuplicates() {
 		assertFalse(isContainingOnlyUniqueValues(new int[] { 1, 2, 44, 2, 3, 2 }));
 	}
@@ -130,7 +130,7 @@ public class NinjaFinderTest extends TestCase {
 			return new ArrayList<>();
 		}
 
-		int[] integers = NinjaFinderUtils.convertStringToArrayOfInteger(value);
+		int[] integers = NinjaFinderStringUtils.convertStringToArrayOfInteger(value);
 
 		if (integers.length == 0) {
 			return new ArrayList<>();
@@ -144,7 +144,7 @@ public class NinjaFinderTest extends TestCase {
 
 	private void computePermutations(int start, int[] input, Set<String> permutations) {
 		if (start == input.length) {
-			permutations.add(NinjaFinderUtils.convertArrayOfIntegersToFormattedString(input));
+			permutations.add(NinjaFinderStringUtils.convertArrayOfIntegersToFormattedString(input));
 			return;
 		}
 		for (int i = start; i < input.length; i++) {
@@ -182,6 +182,12 @@ public class NinjaFinderTest extends TestCase {
 
 	public void testPermutationsShouldReturnEmptyListIfInputContainsCharacterThatIsNotAnInteger() {
 		List<String> result = permutations("  1  k ");
+		assertNotNull(result);
+		assertTrue(result.isEmpty());
+	}
+
+	public void testPermutationsShouldReturnEmptyListIfInputIsNotAnInteger() {
+		List<String> result = permutations(" 4.567");
 		assertNotNull(result);
 		assertTrue(result.isEmpty());
 	}
@@ -241,8 +247,8 @@ public class NinjaFinderTest extends TestCase {
 			return "";
 		}
 
-		List<Integer> reversedValue = NinjaFinderUtils
-				.convertArrayOfIntegersToList(NinjaFinderUtils.convertStringToArrayOfInteger(value));
+		List<Integer> reversedValue = NinjaFinderArrayUtils
+				.convertArrayOfIntegersToList(NinjaFinderStringUtils.convertStringToArrayOfInteger(value));
 
 		if (reversedValue.isEmpty()) {
 			return "";
@@ -250,7 +256,7 @@ public class NinjaFinderTest extends TestCase {
 
 		Collections.reverse(reversedValue);
 
-		return NinjaFinderUtils.convertListOfIntegersToFormattedString(reversedValue);
+		return NinjaFinderStringUtils.convertListOfIntegersToFormattedString(reversedValue);
 	}
 
 	public void testReverseShouldReturnEmptyStringIfInputIsNull() {
@@ -259,20 +265,26 @@ public class NinjaFinderTest extends TestCase {
 		assertTrue(result.isEmpty());
 	}
 
-	public void testPermutationsShouldReturnEmptyStringIfInputIsEmpty() {
+	public void testReverseShouldReturnEmptyStringIfInputIsEmpty() {
 		String result = reverse("");
 		assertNotNull(result);
 		assertTrue(result.isEmpty());
 	}
 
-	public void testPermutationsShouldReturnEmptyStringIfValueOnlyHasSpaces() {
+	public void testReverseShouldReturnEmptyStringIfValueOnlyHasSpaces() {
 		String result = reverse("               ");
 		assertNotNull(result);
 		assertTrue(result.isEmpty());
 	}
 
-	public void testPermutationsShouldReturnEmptyStringIfInputContainsLetters() {
-		String result = reverse("s a  gg s");
+	public void testReverseShouldReturnEmptyStringIfInputContainsLetters() {
+		String result = reverse("1 2 gg s");
+		assertNotNull(result);
+		assertTrue(result.isEmpty());
+	}
+
+	public void testReverseShouldReturnEmptyStringIfDoesNotContainInteger() {
+		String result = reverse("3.14159265359");
 		assertNotNull(result);
 		assertTrue(result.isEmpty());
 	}
@@ -281,8 +293,12 @@ public class NinjaFinderTest extends TestCase {
 		assertEquals("3 2 1", reverse("1   2 3  "));
 	}
 
-	public void testReverse4Elements() {
+	public void testReverseFourElements() {
 		assertEquals("3 2 1 1", reverse("1       1  2 3  "));
+	}
+
+	public void testReverseManyElementsNotSorted() {
+		assertEquals("1 5 77 4 5 3 2 1 1", reverse("1       1  2 3  5 4       77 5 1"));
 	}
 
 	/*
@@ -344,14 +360,18 @@ public class NinjaFinderTest extends TestCase {
 		assertTrue(primePalindrome() == 929);
 	}
 
-	public static class NinjaFinderUtils {
-		public static int[] convertStringToArrayOfInteger(String value) {
+	public static class NinjaFinderStringUtils {
+		public static int[] convertStringToArrayOfInteger(String stringValue) {
 			try {
-				return Arrays.asList(value.split(" ")).stream().filter(string -> string != null && !string.isEmpty())
-						.mapToInt(Integer::parseInt).toArray();
+				return Arrays.asList(stringValue.split(" ")).stream()
+						.filter(string -> string != null && !string.isEmpty()).mapToInt(Integer::parseInt).toArray();
 			} catch (NumberFormatException e) {
 				return new int[] {};
 			}
+		}
+
+		public static String convertArrayOfIntegersToFormattedString(int[] integers) {
+			return convertListOfIntegersToFormattedString(NinjaFinderArrayUtils.convertArrayOfIntegersToList(integers));
 		}
 
 		public static String convertListOfIntegersToFormattedString(List<Integer> integers) {
@@ -361,11 +381,9 @@ public class NinjaFinderTest extends TestCase {
 			}
 			return formattedString.trim();
 		}
+	}
 
-		public static String convertArrayOfIntegersToFormattedString(int[] integers) {
-			return convertListOfIntegersToFormattedString(convertArrayOfIntegersToList(integers));
-		}
-
+	public static class NinjaFinderArrayUtils {
 		public static List<Integer> convertArrayOfIntegersToList(int[] integers) {
 			return IntStream.of(integers).boxed().collect(Collectors.toList());
 		}
